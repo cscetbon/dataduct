@@ -85,15 +85,12 @@ def rds_connection(database_name=None, sql_creds=None,
     return connection
 
 
-
 def get_postgres_config():
     """Get postgres config from config file and return the dictionary
     """
     if not hasattr(config,'postgres'):
 	raise ETLConfigError('Postgres config not found')
     return config.postgres
-
-
 
 
 @retry(CONNECTION_RETRIES, 60)

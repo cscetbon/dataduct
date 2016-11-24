@@ -7,18 +7,18 @@ from .pipeline_object import PipelineObject
 from .schedule import Schedule
 
 
-class PostgresNode(PipelineObject):
+class RdsNode(PipelineObject):
     """SQL Data Node class
     """
 
-    def __init__(self, id, schedule, host, database, username, password,
+    def __init__(self, id, schedule, database,
                  select_query, insert_query, table, depends_on=None):
         """Constructor for the SqlNode class
 
         Args:
             id(str): id of the object
             schedule(Schedule): pipeline schedule
-            database(str): database name on the RDS host
+            database(str): id of RdsDatabase object
             sql(str): sql to be executed
             table(str): table to be read
         """
@@ -41,4 +41,4 @@ class PostgresNode(PipelineObject):
             'table': table,
             'dependsOn': depends_on,
         }
-        super(PostgresNode, self).__init__(**kwargs)
+        super(RdsNode, self).__init__(**kwargs)

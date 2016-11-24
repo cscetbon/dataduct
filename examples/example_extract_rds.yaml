@@ -3,7 +3,7 @@ frequency: one-time
 load_time: 01:00  # Hour:Min in UTC
 
 description: |
-    This example extracts data from mysql to S3 with the extract-rds step.
+    This example extracts data from an rds to S3 with the extract-rds step.
 
 steps:
 -   step_type: extract-rds

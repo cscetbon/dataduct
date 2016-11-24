@@ -18,7 +18,7 @@ from ..pipeline import DefaultObject
 from ..pipeline import Ec2Resource
 from ..pipeline import EmrResource
 from ..pipeline import RedshiftDatabase
-from ..pipeline import PostgresDatabase
+from ..pipeline import RdsDatabase
 from ..pipeline import S3Node
 from ..pipeline import SNSAlarm
 from ..pipeline import Schedule
@@ -136,7 +136,7 @@ class ETLPipeline(object):
         self.sns = None
         self.default = None
         self._redshift_database = None
-        self._postgres_database = None
+        self._rds_database = None
         self._ec2_resource = None
         self._emr_cluster = None
         self.create_base_objects()
@@ -359,20 +359,20 @@ class ETLPipeline(object):
 
 
     @property
-    def postgres_database(self):
-        """Get the postgres database associated with the pipeline
+    def rds_database(self):
+        """Get the rds database associated with the pipeline
 
         Note:
             This will create the object if it doesn't exist
 
         Returns:
-            postgres_database(Object): lazily-constructed postgres database
+            rds_database(Object): lazily-constructed rds database
         """
-        if not self._postgres_database:
-            self._postgres_database = self.create_pipeline_object(
-                object_class=PostgresDatabase
+        if not self._rds_database:
+            self._rds_database = self.create_pipeline_object(
+                object_class=RdsDatabase
             )
-        return self._postgres_database
+        return self._rds_database
 
 
     def step(self, step_id):

@@ -3,24 +3,25 @@ ETL step wrapper for SQLActivity to load data into Postgres
 """
 from ..config import Config
 from .etl_step import ETLStep
-from ..pipeline import PostgresNode
-from ..pipeline import PostgresDatabase
-from ..pipeline import PipelineObject
+from ..pipeline import RdsNode
+from ..pipeline import RdsDatabase
+from ..utils.exceptions import ETLInputError
 from ..pipeline import CopyActivity
 
 config = Config()
-if not hasattr(config, 'postgres'):
-    raise ETLInputError('Postgres config not specified in ETL')
-POSTGRES_CONFIG = config.postgres
+if not hasattr(config, 'rds'):
+    raise ETLInputError('Rds config not specified in ETL')
+
+GLOBAL_RDS_CONFIG = config.rds
 
 
-class LoadPostgresStep(ETLStep):
-    """Load Postgres Step class that helps load data into postgres
+class LoadRdsStep(ETLStep):
+    """Load Postgres Step class that helps load data into rds
     """
 
     def __init__(self,
                  table,
-                 postgres_database,
+                 host_name,
                  insert_query,
                  max_errors=None,
                  replace_invalid_char=None,
@@ -30,18 +31,21 @@ class LoadPostgresStep(ETLStep):
         Args:
             table(path): table name for load
             sql(str): sql query to be executed
-            postgres_database(PostgresDatabase): database to excute the query
+            rds_database(RdsDatabase): database to excute the query
             output_path(str): s3 path where sql output should be saved
             **kwargs(optional): Keyword arguments directly passed to base class
         """
-        super(LoadPostgresStep, self).__init__(**kwargs)
+        super(LoadRdsStep, self).__init__(**kwargs)
 
-        region = POSTGRES_CONFIG['REGION']
-        rds_instance_id = POSTGRES_CONFIG['RDS_INSTANCE_ID']
-        user = POSTGRES_CONFIG['USERNAME']
-        password = POSTGRES_CONFIG['PASSWORD']
+        rds_config = GLOBAL_RDS_CONFIG[host_name]
+
+        region = rds_config['REGION']
+        rds_instance_id = rds_config['RDS_INSTANCE_ID']
+        user = rds_config['USERNAME']
+        password = rds_config['PASSWORD']
+
         database_node = self.create_pipeline_object(
-                    object_class=PostgresDatabase,
+                    object_class=RdsDatabase,
                     region=region,
                     rds_instance_id=rds_instance_id,
                     username=user,
@@ -50,7 +54,7 @@ class LoadPostgresStep(ETLStep):
 
         # Create output node
         self._output = self.create_pipeline_object(
-            object_class=PostgresNode,
+            object_class=RdsNode,
             schedule=self.schedule,
             database=database_node,
             table=table,
@@ -80,6 +84,6 @@ class LoadPostgresStep(ETLStep):
             step_args(dict): Dictionary of the step arguments for the class
         """
         step_args = cls.base_arguments_processor(etl, input_args)
-        step_args['postgres_database'] = etl.postgres_database
+        step_args['rds_database'] = etl.rds_database
 
         return step_args
